@@ -142,7 +142,7 @@ int main(int, char**) {
     //cout << "task2: " + to_string(search_time) + "ms\n";
     
     // start_time = clock();
-    task3();
+    // task3();
     // end_time = clock();
     // search_time = end_time - start_time;
     // cout << "task3: " +  to_string(search_time) + "ms\n";
