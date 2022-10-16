@@ -2,6 +2,7 @@
 #include <cuda_runtime.h>
 #include <cstdio>
 #include <ctime>
+#include <string> 
 using namespace  std;
 
 #define CUDA_CHECK_RETURN(value) {                                                                           \
@@ -13,19 +14,19 @@ using namespace  std;
     }                                                                                                        \
 }
 
-#define VECTOR_SIZE (1000000u)
-#define BLOCK_SIZE (256)
+#define VECTOR_SIZE (100000000)
+#define BLOCK_SIZE (2048)
 #define GRID_SIZE ((VECTOR_SIZE + BLOCK_SIZE - 1) / BLOCK_SIZE);
 
 
-__global__ void initBVec(int *data, int length) {
+__global__ void B_vec_GPU(int *data, int length) {
     int i =  blockIdx.x * blockDim.x + threadIdx.x; 
     if (i < length) { 
         data[i] = 1 - length;
     }
 }
 
-__global__ void computeCVect(int *vectorA, int *vectorB, int *vectorC, int length) {
+__global__ void vector_difference(int *vectorA, int *vectorB, int *vectorC, int length) {
     int i =  blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i < length) {
@@ -35,89 +36,114 @@ __global__ void computeCVect(int *vectorA, int *vectorB, int *vectorC, int lengt
 
 
 void task1() {
-    int *A_data = (int*) malloc(sizeof(int) * VECTOR_SIZE);
-    int *B_data = (int*) malloc(sizeof(int) * VECTOR_SIZE);
-    int *C_data = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    int *A = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    int *B = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    int *C = (int*) malloc(sizeof(int) * VECTOR_SIZE);
 
     for (int i = 0; i < VECTOR_SIZE; i++) {
-        A_data[i] = INT_MAX;
-        B_data[i] = 1 - VECTOR_SIZE;
-        C_data[i] = 0;
+        A[i] = INT_MAX;
+        B[i] = 1 - VECTOR_SIZE;
+        C[i] = 0;
     }
 
     for (int i = 0; i < VECTOR_SIZE; i++) {
-        C_data[i] = A_data[i] - B_data[i];
+        C[i] = A[i] - B[i];
     }
 
-    free(A_data);
-    free(B_data);
-    free(C_data);
+    // for (int i = 0; i < VECTOR_SIZE; i++) {
+    //     cout << to_string(A[i]) + " " + to_string(B[i]) + " " + to_string(C[i]) + "\n";
+    // }
+
+    free(A);
+    free(B);
+    free(C);
 }
 
 void task2() {
-    int *A_data = (int*) malloc(sizeof(int) * VECTOR_SIZE);
-    int *C_data = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    int *A = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    int *C = (int*) malloc(sizeof(int) * VECTOR_SIZE);
 
     for (int i = 0; i < VECTOR_SIZE; i++) {
-        A_data[i] = INT_MAX;
-        C_data[i] = 0;
+        A[i] = INT_MAX;
+        C[i] = 0;
     }
 
-    int *AD_data, *BD_data, *CD_data;
-    CUDA_CHECK_RETURN(cudaMalloc(&AD_data, sizeof(int) * VECTOR_SIZE));
-    CUDA_CHECK_RETURN(cudaMalloc(&BD_data, sizeof(int) * VECTOR_SIZE));
-    CUDA_CHECK_RETURN(cudaMalloc(&CD_data, sizeof(int) * VECTOR_SIZE));
+    int *AD, *BD, *CD;
+    CUDA_CHECK_RETURN(cudaMalloc(&AD, sizeof(int) * VECTOR_SIZE));
+    CUDA_CHECK_RETURN(cudaMalloc(&BD, sizeof(int) * VECTOR_SIZE));
+    CUDA_CHECK_RETURN(cudaMalloc(&CD, sizeof(int) * VECTOR_SIZE));
 
-    CUDA_CHECK_RETURN(cudaMemcpy(AD_data, A_data, sizeof(int) * VECTOR_SIZE, cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(AD, A, sizeof(int) * VECTOR_SIZE, cudaMemcpyHostToDevice));
 
     int block_size = BLOCK_SIZE;
     int grid_size = GRID_SIZE
-    initBVec<<<grid_size, block_size>>>(BD_data, VECTOR_SIZE);
+    B_vec_GPU<<<grid_size, block_size>>>(BD, VECTOR_SIZE);
 
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-    computeCVect<<<grid_size, block_size>>>(AD_data, BD_data, CD_data, VECTOR_SIZE);
+    vector_difference<<<grid_size, block_size>>>(AD, BD, CD, VECTOR_SIZE);
 
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-    CUDA_CHECK_RETURN(cudaMemcpy(C_data, CD_data, sizeof(int) * VECTOR_SIZE, cudaMemcpyDeviceToHost));
+    CUDA_CHECK_RETURN(cudaMemcpy(C, CD, sizeof(int) * VECTOR_SIZE, cudaMemcpyDeviceToHost));
 
-    cudaFree(AD_data);
-    cudaFree(BD_data);
-    cudaFree(CD_data);
+    // int* B = (int*) malloc(sizeof(int) * VECTOR_SIZE);
+    // CUDA_CHECK_RETURN(cudaMemcpy(B, BD, sizeof(int) * VECTOR_SIZE, cudaMemcpyDeviceToHost));
 
-    free(A_data);
-    free(C_data);
+    // for (int i = 0; i < VECTOR_SIZE; i++) {
+    //     cout << to_string(A[i]) + " " + to_string(B[i]) + " " + to_string(C[i]) + "\n";
+    // }
+
+    cudaFree(AD);
+    cudaFree(BD);
+    cudaFree(CD);
+
+    free(A);
+    free(C);
 }
 
 void task3() {
-    int *A_data, *B_data, *C_data;
-    CUDA_CHECK_RETURN(cudaMallocManaged(&A_data, sizeof(int) * VECTOR_SIZE));
-    CUDA_CHECK_RETURN(cudaMallocManaged(&B_data, sizeof(int) * VECTOR_SIZE));
-    CUDA_CHECK_RETURN(cudaMallocManaged(&C_data, sizeof(int) * VECTOR_SIZE));
+    int *A, *B, *C;
+    CUDA_CHECK_RETURN(cudaMallocManaged(&A, sizeof(int) * VECTOR_SIZE));
+    CUDA_CHECK_RETURN(cudaMallocManaged(&B, sizeof(int) * VECTOR_SIZE));
+    CUDA_CHECK_RETURN(cudaMallocManaged(&C, sizeof(int) * VECTOR_SIZE));
 
     for (int i = 0; i < VECTOR_SIZE; i++) {
-        A_data[i] = INT_MAX;
-        B_data[i] = 1 - VECTOR_SIZE;
-        C_data[i] = 0;
+        A[i] = INT_MAX;
+        B[i] = 1 - VECTOR_SIZE;
+        C[i] = 0;
     }
     int block_size = BLOCK_SIZE;
     int grid_size = GRID_SIZE
-    computeCVect<<<grid_size, block_size>>>(A_data, B_data, C_data, VECTOR_SIZE);
+    vector_difference<<<grid_size, block_size>>>(A, B, C, VECTOR_SIZE);
 
     CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
-    cudaFree(A_data);
-    cudaFree(B_data);
-    cudaFree(C_data);
+    // for (int i = 0; i < VECTOR_SIZE; i++) {
+    //     cout << to_string(A[i]) + " " + to_string(B[i]) + " " + to_string(C[i]) + "\n";
+    // }
+
+    cudaFree(A);
+    cudaFree(B);
+    cudaFree(C);
 }
 
 int main(int, char**) {
-    unsigned int start_time =  clock();
-    task1();
-    unsigned int end_time = clock();
-    unsigned int search_time = end_time - start_time;
-    cout << search_time;
+    // unsigned int start_time =  clock();
+    // task1();
+    // unsigned int end_time = clock();
+    // unsigned int search_time = end_time - start_time;
+    // cout << "task1: " +  to_string(search_time) + "ms\n";
+    
+    //start_time = clock();
     //task2();
-    //task3();
+    //end_time = clock();
+    //search_time = end_time - start_time;
+    //cout << "task2: " + to_string(search_time) + "ms\n";
+    
+    // start_time = clock();
+    task3();
+    // end_time = clock();
+    // search_time = end_time - start_time;
+    // cout << "task3: " +  to_string(search_time) + "ms\n";
 }

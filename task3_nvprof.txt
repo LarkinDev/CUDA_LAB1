@@ -1,24 +1,20 @@
-==31084== NVPROF is profiling process 31084, command: ./CUDA_LAB1
-==31084== Profiling application: ./CUDA_LAB1
-==31084== Profiling result:
+==37846== NVPROF is profiling process 37846, command: ./CUDA_LAB1
+==37846== Profiling application: ./CUDA_LAB1
+==37846== Profiling result:
+No kernels were profiled.
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
- GPU activities:  100.00%  6.9196ms         1  6.9196ms  6.9196ms  6.9196ms  computeCVect(int*, int*, int*, int)
-      API calls:   94.92%  173.57ms         3  57.855ms  17.279us  173.51ms  cudaMallocManaged
-                    3.79%  6.9218ms         1  6.9218ms  6.9218ms  6.9218ms  cudaDeviceSynchronize
-                    1.02%  1.8696ms         3  623.20us  600.01us  637.77us  cudaFree
-                    0.21%  382.48us       202  1.8930us     183ns  88.159us  cuDeviceGetAttribute
-                    0.03%  60.112us         1  60.112us  60.112us  60.112us  cudaLaunchKernel
-                    0.02%  43.860us         2  21.930us  16.165us  27.695us  cuDeviceGetName
-                    0.01%  13.934us         2  6.9670us  2.1200us  11.814us  cuDeviceGetPCIBusId
-                    0.00%  1.8690us         3     623ns     274ns  1.3160us  cuDeviceGetCount
-                    0.00%  1.3270us         4     331ns     192ns     727ns  cuDeviceGet
-                    0.00%     716ns         2     358ns     281ns     435ns  cuDeviceTotalMem
-                    0.00%     528ns         2     264ns     227ns     301ns  cuDeviceGetUuid
-                    0.00%     371ns         1     371ns     371ns     371ns  cuModuleGetLoadingMode
+      API calls:   80.63%  187.05ms         3  62.349ms  66.712us  186.87ms  cudaMallocManaged
+                   19.11%  44.342ms         3  14.781ms  14.641ms  14.999ms  cudaFree
+                    0.18%  409.54us       202  2.0270us     184ns  94.850us  cuDeviceGetAttribute
+                    0.03%  79.106us         1  79.106us  79.106us  79.106us  cudaDeviceSynchronize
+                    0.02%  52.277us         2  26.138us  17.541us  34.736us  cuDeviceGetName
+                    0.02%  44.007us         1  44.007us  44.007us  44.007us  cudaLaunchKernel
+                    0.00%  11.077us         2  5.5380us  3.9760us  7.1010us  cuDeviceGetPCIBusId
+                    0.00%  1.8120us         3     604ns     279ns  1.2240us  cuDeviceGetCount
+                    0.00%  1.1850us         4     296ns     171ns     625ns  cuDeviceGet
+                    0.00%     970ns         2     485ns     445ns     525ns  cuDeviceTotalMem
+                    0.00%     577ns         2     288ns     274ns     303ns  cuDeviceGetUuid
+                    0.00%     403ns         1     403ns     403ns     403ns  cuModuleGetLoadingMode
 
-==31084== Unified Memory profiling result:
-Device "Tesla V100-SXM2-32GB (0)"
-   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
-     286  40.992KB  4.0000KB  928.00KB  11.44922MB  2.564486ms  Host To Device
-      14         -         -         -           -  6.899745ms  Gpu page fault groups
-Total CPU Page faults: 36
+==37846== Unified Memory profiling result:
+Total CPU Page faults: 3438
